@@ -1,0 +1,16 @@
+<resources>
+    <string name="welcome_message">Welcome to Network Connect!
+        Click FETCH to fetch the first 500 characters of raw HTML from www.google.com.
+    </string>
+
+    <string name="fetch_text">Fetch</string>
+    <string name="clear_text">Clear</string>
+    <string name="connection_error">Connection error.</string>
+    <string name="app_name">valute</string>
+    <string name="about">По нажатию кнопки делает запрос на http://cbr.ru/scripts/XML_dynamic.asp и показывает курc валют</string>
+    <string name="bZapros">Запрос валюты</string>
+    <string name="hello_world">Нет данных, попробуйте обновить.</string>
+    <string name="action_settings">Settings</string>
+    <string name="USD">Курс Доллара на сегодня:</string>
+    <string name="EUR">Курс Евро на сегодня:</string>
+</resources>
