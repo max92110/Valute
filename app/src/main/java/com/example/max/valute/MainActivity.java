@@ -3,6 +3,7 @@ package com.example.max.valute;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -35,6 +36,10 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.Cursor;
+
 
 public class MainActivity extends ActionBarActivity {
     public static final String EUR = "R01239";
@@ -45,7 +50,7 @@ public class MainActivity extends ActionBarActivity {
     TextView tvEuro, tvUSD;
     Button bRefresh;
     Integer indexValute = 0;
-
+    DBHelper dbhelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,27 +64,11 @@ public class MainActivity extends ActionBarActivity {
         tvEuro = (TextView) findViewById(R.id.tvEuro);
         tvUSD = (TextView) findViewById(R.id.tvUSD);
         bRefresh = (Button) findViewById(R.id.bRefresh);
-
+        dbhelper = new DBHelper(this);
         ParseValute(0);
     }
 
     public void bRefreshClick(View view) {
-
-        Intent intent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://yandex.ru"));
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.drawable.ic_action_refresh);
-        builder.setContentIntent(pendingIntent);
-        builder.setAutoCancel(true);
-        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_refresh));
-        builder.setContentTitle("Euro value");
-        builder.setContentText("");
-        builder.setSubText();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(
-                NOTIFICATION_SERVICE);
-        notificationManager.notify(1, builder.build());
-
         ParseValute(0);
     }
 
@@ -98,17 +87,25 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPreExecute() {
             bRefresh.setVisibility(View.INVISIBLE);
-           }
+        }
 
 
         @Override
         protected void onPostExecute(String result) {
             bRefresh.setVisibility(View.VISIBLE);
             Log.i(TAG, result);
-           switch (strvalute){
+            //Work with BD
+            ContentValues cv = new ContentValues();
+            SQLiteDatabase db = dbhelper.getWritableDatabase();
+            cv.put("date", strtoday);
+            cv.put("Val", strvalute);
+            cv.put("Value", result);
+            db.insert("valuteTable", null, cv);
+            dbhelper.close();
+
+            switch (strvalute){
                 case EUR:
                     tvEuro.setText(result);
-
                     break;
                 case USD:
                     tvUSD.setText(result);
@@ -180,4 +177,22 @@ public class MainActivity extends ActionBarActivity {
             new DownloadTask().execute("http://cbr.ru/scripts/XML_dynamic.asp?date_req1=" + strtoday + "&date_req2=" + strtoday + "&VAL_NM_RQ=" + strvalute);
         }
     }
+    class DBHelper extends SQLiteOpenHelper {
+        public DBHelper(Context context) {
+            super(context, "myDB", null, 1);
+        }
+        @Override
+        public void onCreate(SQLiteDatabase db){
+            Log.d("DB","--onCreate database");
+            db.execSQL("create table valuteTable ("
+                    + "id integer primary key autoincrement,"
+                    + "date,"
+                    + "Val," + "Value" + ");");
+        }
+        @Override
+        public void onUpgrade (SQLiteDatabase db, int oldVesion, int newVersion){
+
+        }
+    }
+
 }
