@@ -37,20 +37,21 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.Cursor;
+import com.example.max.valute.DbHelper;
+import com.example.max.valute.Db;
 
 
 public class MainActivity extends ActionBarActivity {
     public static final String EUR = "R01239";
     public static final String USD = "R01235";
     public static final String TAG = "Network Connect";
-    String strtoday, strvalute;
+    String strtoday, strvalute, strvalue;
     String arrayValute[] = {USD, EUR};
     TextView tvEuro, tvUSD;
     Button bRefresh;
     Integer indexValute = 0;
-    DBHelper dbhelper;
+    Db db;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +61,10 @@ public class MainActivity extends ActionBarActivity {
         Calendar today = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         strtoday = df.format(today.getTime());
-
         tvEuro = (TextView) findViewById(R.id.tvEuro);
         tvUSD = (TextView) findViewById(R.id.tvUSD);
         bRefresh = (Button) findViewById(R.id.bRefresh);
-        dbhelper = new DBHelper(this);
+        db = new Db(this);
         ParseValute(0);
     }
 
@@ -95,22 +95,9 @@ public class MainActivity extends ActionBarActivity {
             bRefresh.setVisibility(View.VISIBLE);
             Log.i(TAG, result);
             //Work with BD
-            ContentValues cv = new ContentValues();
-            SQLiteDatabase db = dbhelper.getWritableDatabase();
-            cv.put("date", strtoday);
-            cv.put("Val", strvalute);
-            cv.put("Value", result);
-            db.insert("valuteTable", null, cv);
-            dbhelper.close();
+            String value = result;
 
-            switch (strvalute){
-                case EUR:
-                    tvEuro.setText(result);
-                    break;
-                case USD:
-                    tvUSD.setText(result);
-                    break;
-            }
+            db.insertRow(strtoday, strvalute, value);
             indexValute = indexValute + 1;
             ParseValute(indexValute);
 
@@ -174,25 +161,23 @@ public class MainActivity extends ActionBarActivity {
     protected void ParseValute(Integer indexValute){
         if (indexValute < arrayValute.length) {
             strvalute = arrayValute[indexValute];
+            strvalue = db.getValue(strtoday,strvalute);
+            switch (strvalute) {
+                case EUR:
+                    tvEuro.setText(strvalue);
+                    break;
+                case USD:
+                    tvUSD.setText(strvalue);
+                    break;
+            }
             new DownloadTask().execute("http://cbr.ru/scripts/XML_dynamic.asp?date_req1=" + strtoday + "&date_req2=" + strtoday + "&VAL_NM_RQ=" + strvalute);
         }
     }
-    class DBHelper extends SQLiteOpenHelper {
-        public DBHelper(Context context) {
-            super(context, "myDB", null, 1);
-        }
-        @Override
-        public void onCreate(SQLiteDatabase db){
-            Log.d("DB","--onCreate database");
-            db.execSQL("create table valuteTable ("
-                    + "id integer primary key autoincrement,"
-                    + "date,"
-                    + "Val," + "Value" + ");");
-        }
-        @Override
-        public void onUpgrade (SQLiteDatabase db, int oldVesion, int newVersion){
 
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        db.close();
     }
 
 }
