@@ -64,37 +64,32 @@ public class Db {
         selectionArgs = new String[]{date, valute};
         db = dbHelper.getReadableDatabase();
         cursor = db.query(DbHelper.TABLE_NAME, columns, selection, selectionArgs, groupBy, having, orderBy);
-        //cursor = db.rawQuery("SELECT "+ DbHelper.VALUE + " FROM " + DbHelper.TABLE_NAME + " WHERE " + selection)
         cursor.moveToFirst();
-        if (cursor == null) {
-                Log.d(LOG_TAG, "Cursor is null");
-                value = "Error";
+        if (cursor.moveToFirst()) {
+            int valueInd = cursor.getColumnIndex(DbHelper.VALUE);
+            value = cursor.getString(valueInd);
             } else {
-                int valueInd = cursor.getColumnIndex(DbHelper.VALUE);
-                value = cursor.getString(valueInd);
-                //cursor.close();
+            Log.d(LOG_TAG, "Cursor is null");
+            value = null;
             }
         cursor.close();
         return value;
     }
+
     //Вывод всех строк базы
     public List<Valute> getAllRows(){
         db = dbHelper.getReadableDatabase();
         cursor = db.query(DbHelper.TABLE_NAME, null, null, null, null, null, null);
         mValuteList = new ArrayList<Valute>();
-        Log.d(LOG_TAG,"1");
         cursor.moveToFirst();
-        Log.d(LOG_TAG, "2");
         if (cursor.moveToFirst()){
             int idColind = cursor.getColumnIndex(DbHelper.KEY_ID);
-            Log.d(LOG_TAG,"3");
             int dateColind = cursor.getColumnIndex(DbHelper.DATE);
             int valuteColind = cursor.getColumnIndex(DbHelper.VALUTE);
             int valueColind = cursor.getColumnIndex(DbHelper.VALUE);
             do {
                 Valute valute = new Valute(cursor.getInt(idColind), cursor.getString(dateColind), cursor.getString(valuteColind), cursor.getString(valueColind));
-                Log.d(LOG_TAG,"4");
-                mValuteList.add(valute);
+               mValuteList.add(valute);
                } while (cursor.moveToNext());
             } else {
             Log.d(LOG_TAG, "В базе нет данных");

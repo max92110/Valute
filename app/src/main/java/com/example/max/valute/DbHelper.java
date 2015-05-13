@@ -29,6 +29,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 + KEY_ID + " integer primary key autoincrement,"
                 + DATE + " text,"
                 + VALUTE + " text," + VALUE + " text" + ");");
+
     }
     @Override
     public void onUpgrade (SQLiteDatabase db, int oldVesion, int newVersion){

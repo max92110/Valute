@@ -36,6 +36,8 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+
 import android.database.sqlite.SQLiteDatabase;
 import com.example.max.valute.DbHelper;
 import com.example.max.valute.Db;
@@ -51,6 +53,7 @@ public class MainActivity extends ActionBarActivity {
     Button bRefresh;
     Integer indexValute = 0;
     Db db;
+    String LOG_TAG = "MainProgValute";
 
 
     @Override
@@ -65,11 +68,16 @@ public class MainActivity extends ActionBarActivity {
         tvUSD = (TextView) findViewById(R.id.tvUSD);
         bRefresh = (Button) findViewById(R.id.bRefresh);
         db = new Db(this);
+        RefreshTv();
         ParseValute(0);
     }
 
     public void bRefreshClick(View view) {
-        ParseValute(0);
+        //ParseValute(0);
+        List<Valute> valutes = db.getAllRows();
+        for (Valute valute : valutes ) {
+            Log.d(LOG_TAG, "Id " + valute.getId() + ",Дата " + valute.getData() + ", Валюта " + valute.getValute() + ", Значение " + valute.getValue());
+        }
     }
 
     private class DownloadTask extends AsyncTask<String, Void, String> {
@@ -99,6 +107,7 @@ public class MainActivity extends ActionBarActivity {
 
             db.insertRow(strtoday, strvalute, value);
             indexValute = indexValute + 1;
+            RefreshTv();
             ParseValute(indexValute);
 
         }
@@ -161,17 +170,17 @@ public class MainActivity extends ActionBarActivity {
     protected void ParseValute(Integer indexValute){
         if (indexValute < arrayValute.length) {
             strvalute = arrayValute[indexValute];
-            strvalue = db.getValue(strtoday,strvalute);
-            switch (strvalute) {
-                case EUR:
-                    tvEuro.setText(strvalue);
-                    break;
-                case USD:
-                    tvUSD.setText(strvalue);
-                    break;
+            if (db.getValue(strtoday, strvalute) == null) {
+                new DownloadTask().execute("http://cbr.ru/scripts/XML_dynamic.asp?date_req1=" + strtoday + "&date_req2=" + strtoday + "&VAL_NM_RQ=" + strvalute);
+            } else {
+                indexValute = indexValute + 1;
             }
-            new DownloadTask().execute("http://cbr.ru/scripts/XML_dynamic.asp?date_req1=" + strtoday + "&date_req2=" + strtoday + "&VAL_NM_RQ=" + strvalute);
-        }
+    }
+    }
+
+    protected void RefreshTv(){
+        tvEuro.setText(db.getValue(strtoday,EUR));
+        tvUSD.setText(db.getValue(strtoday,USD));
     }
 
     @Override
