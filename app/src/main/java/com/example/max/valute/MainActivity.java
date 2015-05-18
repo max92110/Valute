@@ -47,23 +47,27 @@ public class MainActivity extends ActionBarActivity {
     public static final String EUR = "R01239";
     public static final String USD = "R01235";
     public static final String TAG = "Network Connect";
-    String strtoday, strvalute, strvalue;
+    String strtoday, strvalute, strvalue, strDateIfNull;
     String arrayValute[] = {USD, EUR};
     TextView tvEuro, tvUSD;
     Button bRefresh;
     Integer indexValute = 0;
     Db db;
     String LOG_TAG = "MainProgValute";
-
+    Calendar today;
+    SimpleDateFormat df;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Calendar today = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        today = Calendar.getInstance();
+        df = new SimpleDateFormat("dd/MM/yyyy");
+
         strtoday = df.format(today.getTime());
+        Log.d(LOG_TAG, strtoday);
+
         tvEuro = (TextView) findViewById(R.id.tvEuro);
         tvUSD = (TextView) findViewById(R.id.tvUSD);
         bRefresh = (Button) findViewById(R.id.bRefresh);
@@ -74,10 +78,16 @@ public class MainActivity extends ActionBarActivity {
 
     public void bRefreshClick(View view) {
         //ParseValute(0);
-        List<Valute> valutes = db.getAllRows();
-        for (Valute valute : valutes ) {
-            Log.d(LOG_TAG, "Id " + valute.getId() + ",Дата " + valute.getData() + ", Валюта " + valute.getValute() + ", Значение " + valute.getValue());
-        }
+        //List<Valute> valutes = db.getAllRows();
+        //for (Valute valute : valutes ) {
+        //    Log.d(LOG_TAG, "Id " + valute.getId() + ",Дата " + valute.getData() + ", Валюта " + valute.getValute() + ", Значение " + valute.getValue());
+        //}
+    }
+
+    public void bUSDClick(View view) {
+        Intent intent = new Intent(this, ListValue.class);
+        intent.putExtra("valute", USD);
+        startActivity(intent);
     }
 
     private class DownloadTask extends AsyncTask<String, Void, String> {
@@ -102,14 +112,22 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(String result) {
             bRefresh.setVisibility(View.VISIBLE);
             Log.i(TAG, result);
-            //Work with BD
             String value = result;
-
-            db.insertRow(strtoday, strvalute, value);
+            if (value != "Connection error") { // Если ошибка
+                db.insertRow(strtoday, strvalute, value);
+                indexValute = indexValute + 1;
+            }
+            if (value != "") { //Если выходной, взять прошлый день.
+                today.add(Calendar.DAY_OF_YEAR,-1);
+                strDateIfNull = df.format(today.getTime());
+                Log.d(LOG_TAG, strtoday);
+                today.add(Calendar.DAY_OF_YEAR, 1);
+                value = db.getValue(strDateIfNull, strvalute);
+                db.insertRow(strtoday, strvalute, value);
+            }
             indexValute = indexValute + 1;
             RefreshTv();
             ParseValute(indexValute);
-
         }
 
 

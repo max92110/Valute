@@ -77,9 +77,11 @@ public class Db {
     }
 
     //Вывод всех строк базы
-    public List<Valute> getAllRows(){
+    public List<Valute> getAllRows(String strType, String strValue){
         db = dbHelper.getReadableDatabase();
-        cursor = db.query(DbHelper.TABLE_NAME, null, null, null, null, null, null);
+        selection = strType + " = ?";
+        selectionArgs = new String[]{strValue};
+        cursor = db.query(DbHelper.TABLE_NAME, null, selection, selectionArgs, null, null, null);
         mValuteList = new ArrayList<Valute>();
         cursor.moveToFirst();
         if (cursor.moveToFirst()){
