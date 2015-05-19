@@ -64,14 +64,13 @@ public class MainActivity extends ActionBarActivity {
 
         today = Calendar.getInstance();
         df = new SimpleDateFormat("dd/MM/yyyy");
-
         strtoday = df.format(today.getTime());
-        Log.d(LOG_TAG, strtoday);
 
         tvEuro = (TextView) findViewById(R.id.tvEuro);
         tvUSD = (TextView) findViewById(R.id.tvUSD);
         bRefresh = (Button) findViewById(R.id.bRefresh);
         db = new Db(this);
+
         RefreshTv();
         ParseValute(0);
     }
@@ -90,6 +89,12 @@ public class MainActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
+    public void bEURClick(View view) {
+        Intent intent = new Intent(this, ListValue.class);
+        intent.putExtra("valute", EUR);
+        startActivity(intent);
+    }
+
     private class DownloadTask extends AsyncTask<String, Void, String> {
 
 
@@ -104,19 +109,19 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         protected void onPreExecute() {
-            bRefresh.setVisibility(View.INVISIBLE);
+
+            //bRefresh.setVisibility(View.INVISIBLE);
         }
 
 
         @Override
         protected void onPostExecute(String result) {
-            bRefresh.setVisibility(View.VISIBLE);
+            //bRefresh.setVisibility(View.VISIBLE);
             Log.i(TAG, result);
             String value = result;
-            if (value != "Connection error") { // Если ошибка
+            if (value != "Connection error" && value != "") { // Если ошибка
                 db.insertRow(strtoday, strvalute, value);
-                indexValute = indexValute + 1;
-            }
+                }
             if (value != "") { //Если выходной, взять прошлый день.
                 today.add(Calendar.DAY_OF_YEAR,-1);
                 strDateIfNull = df.format(today.getTime());

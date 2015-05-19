@@ -17,4 +17,5 @@
     <string name="bDebug">Дебаг</string>
     <string name="bUSD">USD</string>
     <string name="bBack">Назад</string>
+    <string name="bEUR">EUR</string>
 </resources>

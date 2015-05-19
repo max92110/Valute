@@ -74,9 +74,18 @@
         android:layout_height="wrap_content"
         android:text="@string/bUSD"
         android:id="@+id/bUSD"
+        android:layout_marginBottom="80dp"
+        android:onClick="bUSDClick"
         android:layout_above="@+id/textView"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="64dp"
-        android:onClick="bUSDClick"/>
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bEUR"
+        android:id="@+id/bEUR"
+        android:onClick="bEURClick"
+        android:layout_alignTop="@+id/bUSD"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
