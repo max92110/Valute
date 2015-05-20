@@ -1,18 +1,8 @@
 package com.example.max.valute;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -37,10 +27,6 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-
-import android.database.sqlite.SQLiteDatabase;
-import com.example.max.valute.DbHelper;
-import com.example.max.valute.Db;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -76,11 +62,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void bRefreshClick(View view) {
-        //ParseValute(0);
-        //List<Valute> valutes = db.getAllRows();
-        //for (Valute valute : valutes ) {
-        //    Log.d(LOG_TAG, "Id " + valute.getId() + ",Дата " + valute.getData() + ", Валюта " + valute.getValute() + ", Значение " + valute.getValue());
-        //}
+        ParseValute(0);
+        List<Valute> valutes = db.getAllRows(DbHelper.VALUTE,USD);
+        for (Valute valute : valutes ) {
+            Log.d(LOG_TAG, "Id " + valute.getId() + ",Дата " + valute.getData() + ", Валюта " + valute.getValute() + ", Значение " + valute.getValue());
+        }
     }
 
     public void bUSDClick(View view) {
@@ -121,16 +107,17 @@ public class MainActivity extends ActionBarActivity {
             String value = result;
             if (value != "Connection error" && value != "") { // Если ошибка
                 db.insertRow(strtoday, strvalute, value);
-                }
-            if (value != "") { //Если выходной, взять прошлый день.
+                indexValute = indexValute + 1;
+            }
+            if (value == "") { //Если выходной, взять прошлый день.
                 today.add(Calendar.DAY_OF_YEAR,-1);
                 strDateIfNull = df.format(today.getTime());
                 Log.d(LOG_TAG, strtoday);
                 today.add(Calendar.DAY_OF_YEAR, 1);
                 value = db.getValue(strDateIfNull, strvalute);
                 db.insertRow(strtoday, strvalute, value);
+                indexValute = indexValute + 1;
             }
-            indexValute = indexValute + 1;
             RefreshTv();
             ParseValute(indexValute);
         }

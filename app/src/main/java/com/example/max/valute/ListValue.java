@@ -31,7 +31,7 @@ public class ListValue extends ActionBarActivity {
         int index = 0;
         arrayValute = new String[valutes.size()];
         for (Valute valute : valutes ) {
-                arrayValute[index] = "Id " + valute.getId() + ", Date" + valute.getData() + ", Valute " + valute.getValute() + ", Value " + valute.getValue();
+                arrayValute[index] = "Id " + valute.getId() + ", Дата: " + valute.getData() + ", Валюта: " + valute.getValute() + ", Значение: " + valute.getValue();
                 Log.d(LOG_TAG, arrayValute[index]);
                 index = index + 1;
         }
@@ -40,9 +40,7 @@ public class ListValue extends ActionBarActivity {
         lvValute.setAdapter(adapter);
 
     }
-
     public void bBackClick(View view) {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        finish();
     }
 }
